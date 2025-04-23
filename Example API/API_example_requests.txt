@@ -1,0 +1,4 @@
+curl -X POST http://127.0.0.1:5000/login -d '{"username":"testuser","password":"password123"}' -H 'Content-Type: application/json' --proxy 127.0.0.1:8080 -k
+
+
+curl -X GET http://127.0.0.1:5000/verify -H 'Authorization: Bearer <token_goes_here>' --proxy 127.0.0.1:8080 -k

@@ -54,7 +54,9 @@ def login():
 
     if users.get(username) == password:
         payload = {
+            "iss": "https://idp.example.com",
             "sub": username,
+            "aud":"https://service-provider.com",
             "iat": datetime.datetime.utcnow(),
             "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
         }
