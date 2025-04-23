@@ -54,7 +54,7 @@ class RequestEditorTab(IMessageEditorTab):
         row += 1
         self.add_x5u_field("x5u URL:", row)
         row += 1
-        self.add_Resign_Option("Resign JWT with:", row)
+        self.add_Resign_Option("Re-sign JWT with:", row)
         row += 1
         self.add_Signed_JWT("Re-Signed Token", row)
     
@@ -352,27 +352,31 @@ class RequestEditorTab(IMessageEditorTab):
     def resign_JWT(self, event):
         json_headers = json.loads(self.decoded_jwt_headers.getText())
         json_payload = json.loads(self.decoded_jwt_payload.getText())
-        if self.resign_option.getSelectedItem() == "x5u Header":
-            #gen x5u JWT
-            json_headers["x5u"] = self.x5u_URL.getText()
+        try:
+            if self.resign_option.getSelectedItem() == "x5u Header":
+                #gen x5u JWT
+                json_headers["x5u"] = self.x5u_URL.getText()
 
-        elif self.resign_option.getSelectedItem() == "x5c Header":
-            #Read certificate (public key) and embed in x5c header
-            with open(self.certificate.getText(), 'r') as certificate:
-                cert_data = certificate.readlines()
+            elif self.resign_option.getSelectedItem() == "x5c Header":
+                #Read certificate (public key) and embed in x5c header
+                with open(self.certificate.getText(), 'r') as certificate:
+                    cert_data = certificate.readlines()
 
-            # Remove PEM headers
-            cert_data = ''.join(line.strip() for line in cert_data if not line.startswith("-----"))
-            #Parse the certificate (public key) and overwrite/add x5c header
-            #json_headers["x5c"] = [base64.b64encode(cert_data.encode('utf-8')).decode('utf-8')]
-            json_headers["x5c"] = [cert_data]
+                # Remove PEM headers
+                cert_data = ''.join(line.strip() for line in cert_data if not line.startswith("-----"))
+                #Parse the certificate (public key) and overwrite/add x5c header
+                #json_headers["x5c"] = [base64.b64encode(cert_data.encode('utf-8')).decode('utf-8')]
+                json_headers["x5c"] = [cert_data]
 
-        else:
-            #Do some error handling
-            print("Was a resigning option chosen?")
+            else:
+                #Do some error handling
+                print("Was a re-signing option chosen?")
 
-        jwt = self.generate_jwt(json_headers, json_payload)
-        self.JWT_Output.setText(jwt)
+            jwt = self.generate_jwt(json_headers, json_payload)
+            self.JWT_Output.setText(jwt)
+
+        except IOError:
+            print("No private key, public key, or URL provided")
 
     def generate_jwt(self, json_headers, json_payload):
             #Read private key
